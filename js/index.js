@@ -90,7 +90,7 @@ function createFormData(evt) {
     return fd;
 }
 
-createHelpFormData() {
+function createHelpFormData() {
     var fd = new FormData();
     fd.append("playlist", themeSongs[currentThemeSongGuess].playlist);
     fd.append("song", themeSongs[currentThemeSongGuess].song);
