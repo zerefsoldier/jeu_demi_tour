@@ -1,0 +1,19 @@
+#playlistSuits {
+    display: grid;
+    grid-template-columns: repeat(3, 33.33%);
+    text-align: center;
+}
+
+.answerSuggestion {
+    padding: 3px 8px;
+    font-style: italic;
+    border: 3px double rgb(11, 11, 49);
+    background-color: rgb(31, 49, 65);
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.answerSuggestion:hover {
+    border: 3px solid rgb(11, 11, 49);
+}
