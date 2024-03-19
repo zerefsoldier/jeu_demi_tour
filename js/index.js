@@ -10,6 +10,9 @@ function isMultiplayer() {
 
 function resetSoloPlayer() {
     $("#rooms, #roomUsers").html("");
+    $("#playlists").removeClass("d-none");
+    $("#playlistHeader, #playlistSuits").html("");
+
     initPlaylists();
 }
 
@@ -105,21 +108,22 @@ function formSent(evt) {
         body: createFormData(evt)
     }).then(() => {
         // En cas de succès gérer les points etc...
-        if (currentThemeSongGuess == themeSongs.length - 1) {
-            currentThemeSongGuess++;
-            pointsNumber += getPointsIncrement();
+        currentThemeSongGuess++;
+        pointsNumber += getPointsIncrement();
 
-            $(".answerSuggestion").remove();
+        $("#pointsNumber").text(pointsNumber);
+        $(".answerSuggestion").remove();
 
-            if (isMultiplayer()) sockets.playerAnswerGood(playerName, pointsNumber);
-        } else endGame();
+        if (isMultiplayer()) sockets.playerAnswerGood(playerName, pointsNumber);
+        if (currentThemeSongGuess == themeSongs.length) endGame();
+        else launchNextSongToGuess();
     }).catch(() => {
         // En cas de défaite, possibilité de faire un truc
-    }).finally(launchNextSongToGuess);
+    });
 }
 
 function getPointsIncrement() {
-    if ($(".answerSuggestion").length == 0) return 1;
+    if ($(".answerSuggestion").length != 0) return 1;
 
     const artist = $(evt.currentTarget).find("artist:eq(0)");
     const music = $(evt.currentTarget).find("music:eq(0)");
@@ -132,8 +136,8 @@ function createFormData(evt) {
     var fd = new FormData();
     fd.append("playlist", themeSongs[currentThemeSongGuess].playlist);
     fd.append("song", themeSongs[currentThemeSongGuess].song);
-    fd.append("artist", $(evt.currentTarget).find("artist:eq(0)").text().trim());
-    fd.append("music", $(evt.currentTarget).find("music:eq(0)").text().trim());
+    fd.append("artist", $(evt.currentTarget).find(".artist:eq(0)").val().trim());
+    fd.append("music", $(evt.currentTarget).find(".music:eq(0)").val().trim());
 
     return fd;
 }
@@ -146,13 +150,10 @@ function createHelpFormData() {
     return fd;
 }
 
-function reduceTimer(basicCounter = 17) {
+function reduceTimer(basicCounter = 129) {
     if (basicCounter > 0) {
         timerId = setTimeout(() => {
-            $("#timer").css(
-                'border',
-                `${basicCounter}px solid red;border-radius: 800px;background-color: red;width: ${basicCounter}px;height: ${basicCounter}px;float: right`
-            );
+            $("#timer").css( "width", `${basicCounter}px`);
 
             reduceTimer(--basicCounter);
         }, 1000);
@@ -170,6 +171,8 @@ function launchNextSongToGuess() {
 
 function endGame() {
     pointsNumber = 0;
+    currentThemeSongGuess = 0;
+    clearTimeout(timerId);
 
     if (!isMultiplayer()) resetSoloPlayer();
     else resetMultiplayer();

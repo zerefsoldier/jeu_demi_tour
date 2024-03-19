@@ -45,9 +45,9 @@
 
 		public function getLineCodeOfGoodAnswer($playlist, $song, $artistSong) {
 			$request = $this->conn->prepare('
-				SELECT code
+				SELECT *
 				FROM playlist_songs
-				WHERE playlist = :playlist AND song = :song AND good_response LIKE :artistSong
+				WHERE playlist = :playlist AND song = :song AND good_answer LIKE :artistSong
 			');
 			$request->execute(array(
 				':playlist' => $playlist,

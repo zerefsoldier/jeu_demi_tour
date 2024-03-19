@@ -8,6 +8,10 @@ html {
     text-align: right;
 }
 
+#timer {
+    margin-top: -10px;
+}
+
 .mode, #help {
     margin: 4px 10px;
     padding: 3px 6px;
@@ -107,6 +111,13 @@ html {
     margin-top: 80px;
     display: grid;
     grid-template-columns: repeat(3, 33.3%);
+}
+
+#audioGuessSong {
+    width: 10%;
+    position: absolute;
+    margin-top: -16px;
+    margin-left: 10%;
 }
 
 #playlistHeaderForm input > input:first-child {
