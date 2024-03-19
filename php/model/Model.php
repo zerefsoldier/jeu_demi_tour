@@ -21,7 +21,7 @@
 
 		public function getPlaylist($playlist) {
 			$request = $this->conn->query('
-				SELECT playlist, playlists.musicNumber, song
+				SELECT playlist, playlists.musicNumber, song, song_type
 				FROM playlist_songs
 				INNER JOIN playlists ON playlist_songs.playlist = code
 			');
