@@ -2,23 +2,56 @@ let themeSongs = [];
 let currentThemeSongGuess = 0;
 let timerId = null;
 let pointsNumber = 0;
+let playerName = null;
 
-async function init() {
+function initMode() {
+    $(".mode").bind("click", changeMode);
+}
+
+function isMultiplayer() {
+    return  $(".mode.selected").attr("data-mode") == "2";
+}
+
+function changeMode(evt) {
+    $(".mode.selected").removeClass("selected");
+    $(evt.currentTarget).addClass("selected");
+
+    const mode = $(evt.currentTarget).attr("data-mode");
+
+    if (mode == "1") {
+        $("#rooms").html("");
+        initPlaylists();
+    } else {
+        sockets.getRooms();
+    }
+}
+
+async function getPlaylists() {
     const request = await fetch("/php/controllers/getPlaylists.php");
     const response = await request.json();
 
+    return response;
+}
+
+async function initPlaylists() {
+    const response = await getPlaylists();
+    
     $("#playlists").html(Mustache.to_html($("#playlistThemeTemplate").html(), response));
     $(".playlist").bind("click", playlistChoosed);
 }
 
 async function playlistChoosed(evt) {
-    const playlistCode = $(evt.currentTarget).attr("data-code");
-    const request = await fetch(`/php/controllers/getPlaylists.php?playlisyt=${playlistCode}`);
-
-    themeSongs = await request.json();
+    themeSongs = await getPlaylistSongs($(evt.currentTarget).attr("data-code"));
 
     initPlaylistHeader();
     $("#playlistSuits").html(Mustache.to_html($("playlistSongsTemplate").html(), themeSongs[currentThemeSongGuess]));
+}
+
+async function getPlaylistSongs(playlistCode) {
+    const request = await fetch(`/php/controllers/getPlaylists.php?playlisyt=${playlistCode}`);
+    const response = await request.json();
+
+    return response;
 }
 
 function initPlaylistHeader() {
@@ -68,16 +101,28 @@ function formSent(evt) {
         body: createFormData(evt)
     }).then(() => {
         // En cas de succès gérer les points etc...
-        const pointsIncreasement = $(".answerSuggestion").length == 0 ? 2 : 1;
-        currentThemeSongGuess++; pointsNumber += pointsIncreasement;
+        currentThemeSongGuess++;
+        pointsNumber += getPointsIncrement();
         
         initPlaylistHeader();
         $(".answerSuggestion").remove();
+
+        if (isMultiplayer()) sockets.playerAnswerGood(playerName, pointsNumber);
     }).catch(() => {
         // En cas de défaite réinitialiser les champs
         $(evt.currentTarget).find("artist:eq(0)").text("");
         $(evt.currentTarget).find("music:eq(0)").text("");
     });
+}
+
+function getPointsIncrement() {
+    if ($(".answerSuggestion").length == 0) return 1;
+
+    const artist = $(evt.currentTarget).find("artist:eq(0)");
+    const music = $(evt.currentTarget).find("music:eq(0)");
+
+    if (artist.length == 0 || music.length == 0) return 2;
+    else if (artist.length > 0 && music.length > 0) return 3;
 }
 
 function createFormData(evt) {
@@ -115,4 +160,43 @@ function launchNextSongToGuess() {
     initPlaylistHeader();
 }
 
-init();
+initMode();
+initPlaylists();
+
+// Sockets events
+
+async function roomsFound(rooms) {
+    const playlists = await getPlaylists();
+    $("#rooms")
+        .html(Mustache.to_html($("#roomCreateTemplate").html(), playlists))
+        .append(Mustache.to_html($("#roomsTemplates").html(), rooms));
+
+    $("#roomToCreate").bind("submit", createPersonnalRoom);
+    $(".room").bind("click", chooseRoom);
+}
+
+function askUsername() {
+    const username = prompt("Entrez votre nom de joueur ici");
+    
+    playerName = username;
+    return username;
+}
+
+function createPersonnalRoom() {
+    const roomName = $("#roomToCreate input[type='text']:eq(0)").val();
+    const playlist = $("#playlistsRoom").find(":selected").val();
+    const username = askUsername();
+
+    sockets.createRoom(roomName, playlist, username);
+}
+
+async function chooseRoom(evt) {
+    const username = askUsername();
+
+    sockets.joinRoom(username, $(evt.currentTarget).attr("data-room"));
+    themeSongs = await getPlaylistSongs($(evt.currentTarget).attr("data-playlist"));
+}
+
+function joinedRoom(users) {
+   $("#roomUsers").html(Mustache.to_html($("#usersOnlineTemplate".html(), users)));
+}

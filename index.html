@@ -3,6 +3,12 @@
 
     </head>
     <body>
+        <div id="modes">
+            <span class="mode selected" data-mode="1">Solo</span>
+            <span class="mode" data-mode="2">Multijoueur</span>
+        </div>
+        <div id="rooms"></div>
+        <div id="roomUsers"></div>
         <div id="playlists"></div>
         <div id="playlist">
             <div id="playlistHeader"></div>
@@ -51,6 +57,35 @@
         <span class="answerSuggestion">{{response_a}}</span>
         <span class="answerSuggestion">{{response_b}}</span>
         <span class="answerSuggestion">{{response_c}}</span>
+    </script>
+
+    <script type="text/html" id="roomCreateTemplate">
+        <form id="roomToCreate">
+            <input type="text" placeholder="Nom de votre salon ..." required />
+            <select id="playlistsRoom">
+                {{#playlists}}
+                    <option value="{{code}}">{{playlistTitle}} ({{theme}}) - {{musicNumber}} musiques</option>
+                {{/playlists}}
+            </select>
+            <input type="submit" value="Créer le salon" />
+        </form>
+    </script>
+
+    <script type="text/html" id="roomsTemplates">
+        {{#rooms}}
+            <div class="room" data-room="{{id}}" data-playlist="{{playlist}}">
+                <span>{{name}}</span>
+            </div>
+        {{/rooms}}
+    </script>
+
+    <script type="text/html" id="usersOnlineTemplate">
+        {{#users}}
+            <div class="user" data-user="{{user}}">
+                <span>{{user}}</span>
+                <span class="userPoints">{{points}}</span>
+            </div>
+        {{/users}}
     </script>
 
     <script src="/js/index.js"></script>
