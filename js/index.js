@@ -4,12 +4,22 @@ let timerId = null;
 let pointsNumber = 0;
 let playerName = null;
 
-function initMode() {
-    $(".mode").bind("click", changeMode);
-}
-
 function isMultiplayer() {
     return  $(".mode.selected").attr("data-mode") == "2";
+}
+
+function resetSoloPlayer() {
+    $("#rooms, #roomUsers").html("");
+    initPlaylists();
+}
+
+function resetMultiplayer() {
+    $("#playlists").html("");
+    sockets.getRooms();
+}
+
+function initMode() {
+    $(".mode").bind("click", changeMode);
 }
 
 function changeMode(evt) {
@@ -18,12 +28,8 @@ function changeMode(evt) {
 
     const mode = $(evt.currentTarget).attr("data-mode");
 
-    if (mode == "1") {
-        $("#rooms").html("");
-        initPlaylists();
-    } else {
-        sockets.getRooms();
-    }
+    if (mode == "1") resetSoloPlayer();
+    else resetMultiplayer();
 }
 
 async function getPlaylists() {
@@ -87,8 +93,8 @@ function answerSuggestionClicked(evt) {
     $(".answerSuggestion").unbind("click", answerSuggestionClicked);
 
     const responseParts = $(evt.currentTarget).text().split("/");
-    $(evt.currentTarget).find("artist:eq(0)").text(responseParts[0]);
-    $(evt.currentTarget).find("music:eq(0)").text(responseParts[1]);
+    $("#playlistHeaderForm .artist:eq(0)").text(responseParts[0]);
+    $("#playlistHeaderForm .music:eq(0)").text(responseParts[1]);
     $("#playlistHeaderForm").submit();
 }
 
@@ -101,13 +107,15 @@ function formSent(evt) {
         body: createFormData(evt)
     }).then(() => {
         // En cas de succès gérer les points etc...
-        currentThemeSongGuess++;
-        pointsNumber += getPointsIncrement();
-        
-        initPlaylistHeader();
-        $(".answerSuggestion").remove();
+        if (currentThemeSongGuess < themeSongs.length) {
+            currentThemeSongGuess++;
+            pointsNumber += getPointsIncrement();
+            
+            initPlaylistHeader();
+            $(".answerSuggestion").remove();
 
-        if (isMultiplayer()) sockets.playerAnswerGood(playerName, pointsNumber);
+            if (isMultiplayer()) sockets.playerAnswerGood(playerName, pointsNumber);
+        } else endGame();
     }).catch(() => {
         // En cas de défaite réinitialiser les champs
         $(evt.currentTarget).find("artist:eq(0)").text("");
@@ -158,6 +166,13 @@ function launchNextSongToGuess() {
 
     currentThemeSongGuess++;
     initPlaylistHeader();
+}
+
+function endGame() {
+    pointsNumber = 0;
+
+    if (!isMultiplayer()) resetSoloPlayer();
+    else resetMultiplayer();
 }
 
 initMode();
