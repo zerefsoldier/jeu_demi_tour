@@ -24,6 +24,10 @@
     <script type="text/html" id="playlistThemeTemplate">
         {{#.}}
             <div class="playlist" style="background-image: url(/pictures/wallpapers/{{theme}}); background-size: cover;" data-code="{{code}}">
+                <!-- <div class="playlistLinkStyle">
+                    <span>.</span>
+                    <span>|</span>
+                </div> -->
                 <p class="musicNumber">
                     <span>{{musicNumber}} </span>
                     <span>chansons</span>
@@ -41,7 +45,7 @@
         <div>
             <span id="currentSong">Chanson <span id="currentSongCounter">{{currentMusicNumber}}</span> sur {{musicNumber}}</span>
             <audio id="audioGuessSong" autoplay loop></audio>
-            <p id="timer" style="border: 18px solid red;border-radius: 800px;background-color: red;width: 18px;height: 18px;float: right;"></p>
+            <p id="timer" style="border: 18px solid #0d3a67;border-radius: 800px;background-color: #0d3a67;width: 18px;height: 18px;float: right;box-shadow: 1px 1px 5px gray;"></p>
             <span id="help"n>Help !!!</span>
         </div>
 

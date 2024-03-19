@@ -16,7 +16,7 @@ html {
     background-color: rgb(2, 2, 88);
     border: 2px solid black;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 16px;
     border-radius: 3px;
 }
 
@@ -26,14 +26,10 @@ html {
     background-color: black;
     color: white;
     padding: 5px 10px;
-    font-size: 13px;
+    font-size: 14px;
     top: 10%;
     left: 13%;
     transform: rotate(-45deg);
-}
-
-#timer {
-    margin-top: 10px;
 }
 
 #help {
@@ -46,7 +42,48 @@ html {
 
 #playlists {
     display: grid;
-    grid-template-columns: repeat(3, 33.33%);
+    grid-template-columns: repeat(2, 50%);
+    padding-top: 90px;
+}
+
+#playlists .playlist {
+    transition-property: transform;
+    transition-timing-function: cubic-bezier(.29, 1.01, 1, -0.68);
+    transition-duration: 0.3s;
+    margin: 0 15px 100px 15px;
+    height: 400px;
+    padding: 5px;
+    border-radius: 10px;
+    border: 5px solid black;
+    transform: rotate(10deg);
+    cursor: pointer;
+    z-index: 3;
+}
+
+.playlistLinkStyle {
+    text-align: center;
+    font-size: 50px;
+    position: fixed;
+    width: 100%;
+    margin-top: -72px;
+}
+
+.playlistLinkStyle > span:first-child {
+    position: absolute;
+    margin-top: -310px;
+    margin-left: -28px;
+    font-size: 300px;
+}
+
+#playlists .playlist:hover {
+    transition-property: transform;
+    transition-timing-function: cubic-bezier(.29, 1.01, 1, -0.68);
+    transition-duration: 0.3s;
+    transform: none;
+}
+
+.playlist:hover .playlistLinkStyle {
+    width: 31%;
 }
 
 #playlists .playlist p {
@@ -62,10 +99,22 @@ html {
     font-weight: 700;
 }
 
+#playlistHeader {
+    padding-top: 90px;
+}
+
 #playlistHeaderForm {
     margin-top: 80px;
     display: grid;
     grid-template-columns: repeat(3, 33.3%);
+}
+
+#playlistHeaderForm input > input:first-child {
+    margin-left: 0;
+}
+
+#playlistHeaderForm input > input:last-child {
+    margin-right: 0;
 }
 
 #playlistHeaderForm input {
