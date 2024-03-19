@@ -1,19 +1,76 @@
+html {
+    width: 70%;
+    margin: 0 15%;
+    padding: 20px;
+}
+
 #modes {
     text-align: right;
 }
 
-.mode {
+.mode, #help {
     margin: 4px 10px;
     padding: 3px 6px;
-    font-family: 'Times New Roman', Times, serif;
+    font-family: monospace;
     color: white;
     background-color: rgb(2, 2, 88);
-    color: white;
     border: 2px solid black;
+    cursor: pointer;
+    font-size: 13px;
+    border-radius: 3px;
+}
+
+#pointsNumberContainer {
+    position: absolute;
+    z-index: -1;
+    background-color: black;
+    color: white;
+    padding: 5px 10px;
+    font-size: 13px;
+    top: 10%;
+    left: 13%;
+    transform: rotate(-45deg);
+}
+
+#timer {
+    margin-top: 10px;
+}
+
+#help {
+    box-shadow: none;
 }
 
 .mode.selected, .mode:hover {
     box-shadow: 1px 1px 1px 4px gray;
+}
+
+#playlists {
+    display: grid;
+    grid-template-columns: repeat(3, 33.33%);
+}
+
+#playlists .playlist p {
+    display: block;
+    text-align: center;
+}
+
+#playlists .playlist .musicNumber {
+    text-align: right;
+    font-style: italic;
+    font-family: serif;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+#playlistHeaderForm {
+    margin-top: 80px;
+    display: grid;
+    grid-template-columns: repeat(3, 33.3%);
+}
+
+#playlistHeaderForm input {
+    margin: 0 15px;
+    border-radius: 3px;
 }
 
 #playlistSuits {
@@ -30,6 +87,7 @@
     color: white;
     font-weight: 700;
     cursor: pointer;
+    margin: 0 15px;
 }
 
 .answerSuggestion:hover {

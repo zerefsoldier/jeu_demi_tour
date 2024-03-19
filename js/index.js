@@ -62,6 +62,7 @@ async function getPlaylistSongs(playlistCode) {
 
 function initPlaylistHeader() {
     $("#playlists").addClass("d-none");
+    $(".playlist").unbind("click", playlistChoosed);
 
     $("#playlistHeader").html(Mustache.to_html($("#initPlaylistHeader").html(), {
         currentMusicNumber: currentThemeSongGuess + 1,
@@ -72,7 +73,6 @@ function initPlaylistHeader() {
 
     $("#help").bind("click", help);
     $("#playlistHeaderForm").on("submit", formSent);
-    $(".playlist").unbind("click", playlistChoosed);
 
     reduceTimer();
 }
@@ -105,20 +105,17 @@ function formSent(evt) {
         body: createFormData(evt)
     }).then(() => {
         // En cas de succès gérer les points etc...
-        if (currentThemeSongGuess < themeSongs.length) {
+        if (currentThemeSongGuess == themeSongs.length - 1) {
             currentThemeSongGuess++;
             pointsNumber += getPointsIncrement();
-            
-            initPlaylistHeader();
+
             $(".answerSuggestion").remove();
 
             if (isMultiplayer()) sockets.playerAnswerGood(playerName, pointsNumber);
         } else endGame();
     }).catch(() => {
-        // En cas de défaite réinitialiser les champs
-        $(evt.currentTarget).find("artist:eq(0)").text("");
-        $(evt.currentTarget).find("music:eq(0)").text("");
-    });
+        // En cas de défaite, possibilité de faire un truc
+    }).finally(launchNextSongToGuess);
 }
 
 function getPointsIncrement() {
@@ -149,10 +146,13 @@ function createHelpFormData() {
     return fd;
 }
 
-function reduceTimer(basicCounter = 89) {
+function reduceTimer(basicCounter = 17) {
     if (basicCounter > 0) {
         timerId = setTimeout(() => {
-            $("#timer").style(`border: ${basicCounter}px solid red`);
+            $("#timer").css(
+                'border',
+                `${basicCounter}px solid red;border-radius: 800px;background-color: red;width: ${basicCounter}px;height: ${basicCounter}px;float: right`
+            );
 
             reduceTimer(--basicCounter);
         }, 1000);
@@ -161,6 +161,8 @@ function reduceTimer(basicCounter = 89) {
 
 function launchNextSongToGuess() {
     clearTimeout(timerId);
+    $("#playlistHeaderForm .artist:eq(0)").val("");
+    $("#playlistHeaderForm .music:eq(0)").val("");
 
     currentThemeSongGuess++;
     initPlaylistHeader();

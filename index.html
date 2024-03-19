@@ -16,7 +16,7 @@
         </div>
     </body>
     <link rel="stylesheet" type="text/css" href="/libs/css/bootstrap.min.css" />
-    <link rel="styleheet" type="text/css" href="/css/index.css" />
+    <link rel="stylesheet" type="text/css" href="/css/index.css" />
     <script src="/libs/js/jquery.js"></script>
     <script src="/libs/js/mustache.min.js"></script>
     <script src="/libs/js/sockets.io.js"></script>
@@ -24,18 +24,24 @@
     <script type="text/html" id="playlistThemeTemplate">
         {{#.}}
             <div class="playlist" style="background-image: url(/pictures/wallpapers/{{theme}}); background-size: cover;" data-code="{{code}}">
-                <span class="musicNumber"><span>{{musicNumber}}</span> chansons</span>
-                <span class="playlistTitle">{{playlistTitle}}</span>
+                <p class="musicNumber">
+                    <span>{{musicNumber}} </span>
+                    <span>chansons</span>
+                </p>
+                <p class="playlistTitle">{{playlistTitle}}</p>
             </div>
         {{/.}}
     </script>
 
     <script type="text/html" id="initPlaylistHeader">
-        <span id="pointsNumber">{{pointsNumber}}</span>
+        <span id="pointsNumberContainer">
+            <span id="pointsNumber">{{pointsNumber}}</span>
+            <span>point(s)</span>
+        </span>
         <div>
             <span id="currentSong">Chanson <span id="currentSongCounter">{{currentMusicNumber}}</span> sur {{musicNumber}}</span>
             <audio id="audioGuessSong" autoplay loop></audio>
-            <p id="timer" style="border: 90px solid red; border-radius: 800px; background-color: red;"></p>
+            <p id="timer" style="border: 18px solid red;border-radius: 800px;background-color: red;width: 18px;height: 18px;float: right;"></p>
             <span id="help"n>Help !!!</span>
         </div>
 
