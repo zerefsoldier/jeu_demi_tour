@@ -22,12 +22,12 @@
     <script src="/libs/js/sockets.io.js"></script>
 
     <script type="text/html" id="playlistThemeTemplate">
-        {{#playlists}}
+        {{#.}}
             <div class="playlist" style="background-image: url(/pictures/wallpapers/{{theme}}); background-size: cover;" data-code="{{code}}">
                 <span class="musicNumber"><span>{{musicNumber}}</span> chansons</span>
                 <span class="playlistTitle">{{playlistTitle}}</span>
             </div>
-        {{/playlists}}
+        {{/.}}
     </script>
 
     <script type="text/html" id="initPlaylistHeader">
@@ -63,29 +63,29 @@
         <form id="roomToCreate">
             <input type="text" placeholder="Nom de votre salon ..." required />
             <select id="playlistsRoom">
-                {{#playlists}}
+                {{#.}}
                     <option value="{{code}}">{{playlistTitle}} ({{theme}}) - {{musicNumber}} musiques</option>
-                {{/playlists}}
+                {{/.}}
             </select>
             <input type="submit" value="Créer le salon" />
         </form>
     </script>
 
     <script type="text/html" id="roomsTemplates">
-        {{#rooms}}
+        {{#.}}
             <div class="room" data-room="{{id}}" data-playlist="{{playlist}}">
                 <span>{{name}}</span>
             </div>
-        {{/rooms}}
+        {{/.}}
     </script>
 
     <script type="text/html" id="usersOnlineTemplate">
-        {{#users}}
+        {{#.}}
             <div class="user" data-user="{{user}}">
                 <span>{{user}}</span>
                 <span class="userPoints">{{points}}</span>
             </div>
-        {{/users}}
+        {{/.}}
     </script>
 
     <script src="/js/index.js"></script>

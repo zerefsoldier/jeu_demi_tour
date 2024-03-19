@@ -3,7 +3,7 @@
 		private $conn;
 	  
 		public function __construct() {
-			$this->conn = new PDO('mysql:host=db5015558336.hosting-data.io;dbname=dbs12709828', 'dbu5099689', '10WaypendiO$', array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
+			$this->conn = new PDO('mysql:host=127.0.01;port=3306;dbname=reverse_blindtest', 'reverse_blindtest_user', '10WaypendiO$', array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
 		}
 		
 		public function getConn() {
@@ -30,11 +30,15 @@
 		}
 
 		public function getPlaylistAnswersSuggestion($playlist, $song) {
-			$request = $this->conn->query('
+			$request = $this->conn->prepare('
 				SELECT response_a, response_b, response_c
 				FROM playlist_songs
-				playlist = :playlist AND song = :song
+				WHERE playlist = :playlist AND song = :song
 			');
+			$request->execute(array(
+				':playlist' => $playlist,
+				':song' => $song
+			));
 
 			return $request->fetch(PDO::FETCH_ASSOC);
 		}

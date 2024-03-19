@@ -54,7 +54,7 @@ async function playlistChoosed(evt) {
 }
 
 async function getPlaylistSongs(playlistCode) {
-    const request = await fetch(`/php/controllers/getPlaylists.php?playlisyt=${playlistCode}`);
+    const request = await fetch(`/php/controllers/getPlaylist.php?playlisyt=${playlistCode}`);
     const response = await request.json();
 
     return response;
@@ -78,8 +78,7 @@ function initPlaylistHeader() {
 }
 
 async function help() {
-    const request = await fetch({
-        url: "/php/controllers/getPlaylistAnswerSuggestion.php",
+    const request = await fetch("/php/controllers/getPlaylistAnswerSuggestion.php", {
         method: "POST",
         body: createHelpFormData()
     });
@@ -93,16 +92,15 @@ function answerSuggestionClicked(evt) {
     $(".answerSuggestion").unbind("click", answerSuggestionClicked);
 
     const responseParts = $(evt.currentTarget).text().split("/");
-    $("#playlistHeaderForm .artist:eq(0)").text(responseParts[0]);
-    $("#playlistHeaderForm .music:eq(0)").text(responseParts[1]);
+    $("#playlistHeaderForm .artist:eq(0)").val(responseParts[0]);
+    $("#playlistHeaderForm .music:eq(0)").val(responseParts[1]);
     $("#playlistHeaderForm").submit();
 }
 
 function formSent(evt) {
     evt.preventDefault();
 
-    fetch({
-        url: "/php/controllers/getPlaylistGoodAnswer.php",
+    fetch("/php/controllers/getPlaylistGoodAnswer.php", {
         method: "POST",
         body: createFormData(evt)
     }).then(() => {
