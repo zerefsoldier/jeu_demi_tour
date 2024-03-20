@@ -108,7 +108,6 @@ function formSent(evt) {
         body: createFormData(evt)
     }).then(() => {
         // En cas de succès gérer les points etc...
-        currentThemeSongGuess++;
         pointsNumber += getPointsIncrement();
 
         $("#pointsNumber").text(pointsNumber);
