@@ -43,6 +43,7 @@ async function getPlaylists() {
 }
 
 async function initPlaylists() {
+    $("#informationPanel").remove();
     const response = await getPlaylists();
     
     $("#playlists").html(Mustache.to_html($("#playlistThemeTemplate").html(), response));
@@ -106,26 +107,28 @@ function formSent(evt) {
     fetch("/php/controllers/getPlaylistGoodAnswer.php", {
         method: "POST",
         body: createFormData(evt)
-    }).then(() => {
-        // En cas de succès gérer les points etc...
-        pointsNumber += getPointsIncrement();
+    }).then((response) => {
+        if (response.ok) {
+            // En cas de succès gérer les points etc...
+            pointsNumber += getPointsIncrement(evt);
 
-        $("#pointsNumber").text(pointsNumber);
-        $(".answerSuggestion").remove();
+            $("#pointsNumber").text(pointsNumber);
+            $(".answerSuggestion").remove();
 
-        if (isMultiplayer()) sockets.playerAnswerGood(playerName, pointsNumber);
-        if (currentThemeSongGuess == themeSongs.length) endGame();
-        else launchNextSongToGuess();
+            if (isMultiplayer()) sockets.playerAnswerGood(playerName, pointsNumber);
+            if (currentThemeSongGuess == themeSongs.length) endGame();
+            else launchNextSongToGuess();
+        }
     }).catch(() => {
         // En cas de défaite, possibilité de faire un truc
     });
 }
 
-function getPointsIncrement() {
+function getPointsIncrement(evt) {
     if ($(".answerSuggestion").length != 0) return 1;
 
-    const artist = $(evt.currentTarget).find("artist:eq(0)");
-    const music = $(evt.currentTarget).find("music:eq(0)");
+    const artist = $(evt.currentTarget).find(".artist:eq(0)").val();
+    const music = $(evt.currentTarget).find(".music:eq(0)").val();
 
     if (artist.length == 0 || music.length == 0) return 2;
     else if (artist.length > 0 && music.length > 0) return 3;
@@ -178,7 +181,7 @@ function endGame() {
 }
 
 initMode();
-initPlaylists();
+$("#downloadPlaylists").click(initPlaylists);
 
 // Sockets events
 

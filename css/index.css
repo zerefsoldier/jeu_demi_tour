@@ -28,6 +28,27 @@ html {
     border-radius: 3px;
 }
 
+#informationPanel {
+    border: 2px solid rgb(2, 2, 88);
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 90px;
+}
+
+#informationPanel h6, #informationPanel div {
+    text-align: center;
+}
+
+#informationPanel button {
+    padding: 2px 10px;
+    margin: 15px 0;
+    background: none;
+    border: 2px solid #0e0e50;
+    border-radius: 3px;
+    background-color: #80808021;
+    box-shadow: 1px 1px 1px 0px inset;
+}
+
 #pointsNumberContainer {
     position: absolute;
     z-index: -1;
@@ -147,6 +168,14 @@ html {
     display: grid;
     grid-template-columns: repeat(3, 33.33%);
     text-align: center;
+}
+
+#playlistSuits > span:first-child {
+    margin-left: 0;
+}
+
+#playlistSuits > span:last-child {
+    margin-right: 0;
 }
 
 .answerSuggestion {
