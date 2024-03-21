@@ -1,222 +1,261 @@
-let themeSongs = [];
-let currentThemeSongGuess = 0;
-let timerId = null;
-let pointsNumber = 0;
-let playerName = null;
+(() => {
+    let themeSongs = [];
+    let currentThemeSongGuess = 0;
+    let timerId = null;
+    let pointsNumber = 0;
+    let playerName = null;
+    let joker = null;
 
-function isMultiplayer() {
-    return  $(".mode.selected").attr("data-mode") == "2";
-}
+    function isMultiplayer() {
+        return  $(".mode.selected").attr("data-mode") == "2";
+    }
 
-function resetSoloPlayer() {
-    $("#rooms, #roomUsers").html("");
-    $("#playlists").removeClass("d-none");
-    $("#playlistHeader, #playlistSuits").html("");
+    function resetSoloPlayer() {
+        $("#rooms, #roomUsers").html("");
+        $("#playlists").removeClass("d-none");
+        $("#playlistHeader, #playlistSuits").html("");
 
-    initPlaylists();
-}
+        initPlaylists();
+    }
 
-function resetMultiplayer() {
-    $("#playlists").html("");
-    sockets.getRooms();
-}
+    function resetMultiplayer() {
+        $("#playlists").html("");
+        sockets.getRooms();
+    }
 
-function initMode() {
-    $(".mode").bind("click", changeMode);
-}
+    function initMode() {
+        $(".mode").bind("click", changeMode);
+    }
 
-function changeMode(evt) {
-    $(".mode.selected").removeClass("selected");
-    $(evt.currentTarget).addClass("selected");
+    function changeMode(evt) {
+        $(".mode.selected").removeClass("selected");
+        $(evt.currentTarget).addClass("selected");
 
-    const mode = $(evt.currentTarget).attr("data-mode");
+        const mode = $(evt.currentTarget).attr("data-mode");
 
-    if (mode == "1") resetSoloPlayer();
-    else resetMultiplayer();
-}
+        if (mode == "1") resetSoloPlayer();
+        else resetMultiplayer();
+    }
 
-async function getPlaylists() {
-    const request = await fetch("/php/controllers/getPlaylists.php");
-    const response = await request.json();
+    function initGame() {
+        $("#modes").removeClass("d-none");
+        initPlaylists();
+    }
 
-    return response;
-}
+    async function initPlaylists() {
+        $("#informationPanel").remove();
+        const response = await getPlaylists();
+        
+        $("#playlists").html(Mustache.to_html($("#playlistThemeTemplate").html(), response));
+        $(".playlist").bind("click", playlistChoosed);
+    }
 
-async function initPlaylists() {
-    $("#informationPanel").remove();
-    const response = await getPlaylists();
-    
-    $("#playlists").html(Mustache.to_html($("#playlistThemeTemplate").html(), response));
-    $(".playlist").bind("click", playlistChoosed);
-}
+    async function getPlaylists() {
+        const request = await fetch("/php/controllers/getPlaylists.php");
+        const response = await request.json();
 
-async function playlistChoosed(evt) {
-    themeSongs = await getPlaylistSongs($(evt.currentTarget).attr("data-code"));
+        return response;
+    }
 
-    initPlaylistHeader();
-    $("#playlistSuits").html(Mustache.to_html($("playlistSongsTemplate").html(), themeSongs[currentThemeSongGuess]));
-}
+    async function playlistChoosed(evt) {
+        themeSongs = await getPlaylistSongs($(evt.currentTarget).attr("data-code"));
 
-async function getPlaylistSongs(playlistCode) {
-    const request = await fetch(`/php/controllers/getPlaylist.php?playlisyt=${playlistCode}`);
-    const response = await request.json();
+        initPlaylistHeader();
+        $("#playlistSuits").html(Mustache.to_html($("playlistSongsTemplate").html(), themeSongs[currentThemeSongGuess]));
+    }
 
-    return response;
-}
+    async function getPlaylistSongs(playlistCode) {
+        const request = await fetch(`/php/controllers/getPlaylist.php?playlisyt=${playlistCode}`);
+        const response = await request.json();
 
-function initPlaylistHeader() {
-    $("#playlists").addClass("d-none");
-    $(".playlist").unbind("click", playlistChoosed);
+        return response;
+    }
 
-    $("#playlistHeader").html(Mustache.to_html($("#initPlaylistHeader").html(), {
-        currentMusicNumber: currentThemeSongGuess + 1,
-        musicNumber: themeSongs[currentThemeSongGuess].musicNumber,
-        song: themeSongs[currentThemeSongGuess].song,
-        pointsNumber
-    }));
+    function initPlaylistHeader() {
+        $("#playlists").addClass("d-none");
+        $(".playlist").unbind("click", playlistChoosed);
 
-    $("#help").bind("click", help);
-    $("#playlistHeaderForm").on("submit", formSent);
+        $("#playlistHeader").html(Mustache.to_html($("#initPlaylistHeader").html(), {
+            currentMusicNumber: currentThemeSongGuess + 1,
+            musicNumber: themeSongs[currentThemeSongGuess].musicNumber,
+            song: themeSongs[currentThemeSongGuess].song,
+            pointsNumber
+        }));
 
-    reduceTimer();
-}
+        $("#help").bind("click", help);
+        $("#playlistHeaderForm").on("submit", formSent);
 
-async function help() {
-    const request = await fetch("/php/controllers/getPlaylistAnswerSuggestion.php", {
-        method: "POST",
-        body: createHelpFormData()
-    });
-    const response = await request.json();
-    
-    $("#playlistSuits").html(Mustache.to_html($("#playlistSuggestionAnswer").html(), response));
-    $(".answerSuggestion").bind("click", answerSuggestionClicked);
-}
+        reduceTimer();
+    }
 
-function answerSuggestionClicked(evt) {
-    $(".answerSuggestion").unbind("click", answerSuggestionClicked);
+    async function help() {
+        const request = await fetch("/php/controllers/getPlaylistAnswerSuggestion.php", {
+            method: "POST",
+            body: createHelpFormData()
+        });
+        const response = await request.json();
+        
+        $("#playlistSuits").html(Mustache.to_html($("#playlistSuggestionAnswer").html(), response));
+        $(".answerSuggestion").bind("click", answerSuggestionClicked);
+    }
 
-    const responseParts = $(evt.currentTarget).text().split("/");
-    $("#playlistHeaderForm .artist:eq(0)").val(responseParts[0]);
-    $("#playlistHeaderForm .music:eq(0)").val(responseParts[1]);
-    $("#playlistHeaderForm").submit();
-}
+    function answerSuggestionClicked(evt) {
+        $(".answerSuggestion").unbind("click", answerSuggestionClicked);
 
-function formSent(evt) {
-    evt.preventDefault();
+        const responseParts = $(evt.currentTarget).text().split("/");
+        $("#playlistHeaderForm .artist:eq(0)").val(responseParts[0]);
+        $("#playlistHeaderForm .music:eq(0)").val(responseParts[1]);
+        $("#playlistHeaderForm").submit();
+    }
 
-    fetch("/php/controllers/getPlaylistGoodAnswer.php", {
-        method: "POST",
-        body: createFormData(evt)
-    }).then((response) => {
-        if (response.ok) {
-            // En cas de succès gérer les points etc...
-            pointsNumber += getPointsIncrement(evt);
+    function getPercentage(val1, val2) {
+        return val1 / val2 * 100;
+    }
 
-            $("#pointsNumber").text(pointsNumber);
-            $(".answerSuggestion").remove();
-
-            if (isMultiplayer()) sockets.playerAnswerGood(playerName, pointsNumber);
-            if (currentThemeSongGuess == themeSongs.length) endGame();
-            else launchNextSongToGuess();
+    async function launchNextOrEndGame() {
+        const progressionPercentage = getPercentage(currentThemeSongGuess + 1, themeSongs.length).toFixed(0);
+        if (isMultiplayer() && progressionPercentage == 25 || progressionPercentage == 50 || progressionPercentage == 75) {
+        const request = await fetch("/php/controllers/getJoker.php");
+        joker = await request.json();
+        displayJoker();
+        } else {
+            joker = none;
+            $("#joker").addClass("d-none");
         }
-    }).catch(() => {
-        // En cas de défaite, possibilité de faire un truc
-    });
-}
 
-function getPointsIncrement(evt) {
-    if ($(".answerSuggestion").length != 0) return 1;
+        if (currentThemeSongGuess == themeSongs.length) endGame();
+        else launchNextSongToGuess();
+    }
 
-    const artist = $(evt.currentTarget).find(".artist:eq(0)").val();
-    const music = $(evt.currentTarget).find(".music:eq(0)").val();
+    function displayJoker(joker) {
+        $("#joker").html(Mustache.to_html($("#jokerTemplate").html(), joker));
+        $("#joker").removeClass("d-none");
+    }
 
-    if (artist.length == 0 || music.length == 0) return 2;
-    else if (artist.length > 0 && music.length > 0) return 3;
-}
+    function formSent(evt) {
+        evt.preventDefault();
 
-function createFormData(evt) {
-    var fd = new FormData();
-    fd.append("playlist", themeSongs[currentThemeSongGuess].playlist);
-    fd.append("song", themeSongs[currentThemeSongGuess].song);
-    fd.append("artist", $(evt.currentTarget).find(".artist:eq(0)").val().trim());
-    fd.append("music", $(evt.currentTarget).find(".music:eq(0)").val().trim());
+        fetch("/php/controllers/getPlaylistGoodAnswer.php", {
+            method: "POST",
+            body: createFormData(evt)
+        }).then(response => {
+            if (response.ok) {
+                const pointsIncrement = getPointsIncrement(evt);
+                pointsNumber += pointsIncrement;
 
-    return fd;
-}
+                $("#pointsNumber").text(pointsNumber);
+                $(".answerSuggestion").remove();
 
-function createHelpFormData() {
-    var fd = new FormData();
-    fd.append("playlist", themeSongs[currentThemeSongGuess].playlist);
-    fd.append("song", themeSongs[currentThemeSongGuess].song);
+                if (isMultiplayer()) {
+                    sockets.playerAnswerGood(playerName, pointsNumber);
+                    if (joker && joker.type == "4") sockets.useJoker(JSON.stringify({pointsIncrement, first: joker.first}));
+                }
+                launchNextOrEndGame();
+            }
 
-    return fd;
-}
+            if ($(".answerSuggestion").length != 0) {
+                $(".answerSuggestion").remove();
+                launchNextOrEndGame();
+            }
+        }).catch(() => {
+            // En cas de défaite, possibilité de faire un truc
+        });
+    }
 
-function reduceTimer(basicCounter = 129) {
-    if (basicCounter > 0) {
-        timerId = setTimeout(() => {
-            $("#timer").css( "width", `${basicCounter}px`);
+    function getPointsIncrement(evt) {
+        if ($(".answerSuggestion").length != 0) return 1;
 
-            reduceTimer(--basicCounter);
-        }, 1000);
-    } else launchNextSongToGuess();
-}
+        const artist = $(evt.currentTarget).find(".artist:eq(0)").val();
+        const music = $(evt.currentTarget).find(".music:eq(0)").val();
 
-function launchNextSongToGuess() {
-    clearTimeout(timerId);
-    $("#playlistHeaderForm .artist:eq(0)").val("");
-    $("#playlistHeaderForm .music:eq(0)").val("");
+        if (artist.length == 0 || music.length == 0) return 2;
+        else if (artist.length > 0 && music.length > 0) return 3;
+    }
 
-    currentThemeSongGuess++;
-    initPlaylistHeader();
-}
+    function createFormData(evt) {
+        var fd = new FormData();
+        fd.append("playlist", themeSongs[currentThemeSongGuess].playlist);
+        fd.append("song", themeSongs[currentThemeSongGuess].song);
+        fd.append("artist", $(evt.currentTarget).find(".artist:eq(0)").val().trim());
+        fd.append("music", $(evt.currentTarget).find(".music:eq(0)").val().trim());
 
-function endGame() {
-    pointsNumber = 0;
-    currentThemeSongGuess = 0;
-    clearTimeout(timerId);
+        return fd;
+    }
 
-    if (!isMultiplayer()) resetSoloPlayer();
-    else resetMultiplayer();
-}
+    function createHelpFormData() {
+        var fd = new FormData();
+        fd.append("playlist", themeSongs[currentThemeSongGuess].playlist);
+        fd.append("song", themeSongs[currentThemeSongGuess].song);
 
-initMode();
-$("#downloadPlaylists").click(initPlaylists);
+        return fd;
+    }
 
-// Sockets events
+    function reduceTimer(basicCounter = 129) {
+        if (basicCounter > 0) {
+            timerId = setTimeout(() => {
+                $("#timer").css( "width", `${basicCounter}px`);
 
-async function roomsFound(rooms) {
-    const playlists = await getPlaylists();
-    $("#rooms")
-        .html(Mustache.to_html($("#roomCreateTemplate").html(), playlists))
-        .append(Mustache.to_html($("#roomsTemplates").html(), rooms));
+                reduceTimer(--basicCounter);
+            }, 1000);
+        } else launchNextSongToGuess();
+    }
 
-    $("#roomToCreate").bind("submit", createPersonnalRoom);
-    $(".room").bind("click", chooseRoom);
-}
+    function launchNextSongToGuess() {
+        clearTimeout(timerId);
+        $("#playlistHeaderForm .artist:eq(0)").val("");
+        $("#playlistHeaderForm .music:eq(0)").val("");
 
-function askUsername() {
-    const username = prompt("Entrez votre nom de joueur ici");
-    
-    playerName = username;
-    return username;
-}
+        currentThemeSongGuess++;
+        initPlaylistHeader();
+    }
 
-function createPersonnalRoom() {
-    const roomName = $("#roomToCreate input[type='text']:eq(0)").val();
-    const playlist = $("#playlistsRoom").find(":selected").val();
-    const username = askUsername();
+    function endGame() {
+        pointsNumber = 0;
+        currentThemeSongGuess = 0;
+        clearTimeout(timerId);
 
-    sockets.createRoom(roomName, playlist, username);
-}
+        if (!isMultiplayer()) resetSoloPlayer();
+        else resetMultiplayer();
+    }
 
-async function chooseRoom(evt) {
-    const username = askUsername();
+    initMode();
+    $("#downloadPlaylists").click(initGame);
 
-    sockets.joinRoom(username, $(evt.currentTarget).attr("data-room"));
-    themeSongs = await getPlaylistSongs($(evt.currentTarget).attr("data-playlist"));
-}
+    // Sockets events
 
-function joinedRoom(users) {
-   $("#roomUsers").html(Mustache.to_html($("#usersOnlineTemplate".html(), users)));
-}
+    async function roomsFound(rooms) {
+        const playlists = await getPlaylists();
+        $("#rooms")
+            .html(Mustache.to_html($("#roomCreateTemplate").html(), playlists))
+            .append(Mustache.to_html($("#roomsTemplates").html(), rooms));
+
+        $("#roomToCreate").bind("submit", createPersonnalRoom);
+        $(".room").bind("click", chooseRoom);
+    }
+
+    function askUsername() {
+        const username = prompt("Entrez votre nom de joueur ici");
+        
+        playerName = username;
+        return username;
+    }
+
+    function createPersonnalRoom() {
+        const roomName = $("#roomToCreate input[type='text']:eq(0)").val();
+        const playlist = $("#playlistsRoom").find(":selected").val();
+        const username = askUsername();
+
+        sockets.createRoom(roomName, playlist, username);
+    }
+
+    async function chooseRoom(evt) {
+        const username = askUsername();
+
+        sockets.joinRoom(username, $(evt.currentTarget).attr("data-room"));
+        themeSongs = await getPlaylistSongs($(evt.currentTarget).attr("data-playlist"));
+    }
+
+    function joinedRoom(users) {
+    $("#roomUsers").html(Mustache.to_html($("#usersOnlineTemplate".html(), users)));
+    }
+})();

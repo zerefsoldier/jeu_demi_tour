@@ -57,4 +57,17 @@
 
 			return $request->fetch(PDO::FETCH_ASSOC);
 		}
+
+		public function getJokerCodes() {
+			$request = $this->conn->query('SELECT code FROM jokers');
+
+			return $request->fetchAll(PDO::FETCH_ASSOC);
+		}
+
+		public function getJoker($code) {
+			$request = $this->conn->prepare('SELECT code, type, first, title, desxcription FROM jokers WHERE code = :code');
+			$request->execute(array(':code' => $code));
+
+			return $request->fetch(PDO::FETCH_ASSOC);
+		}
 	}
