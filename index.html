@@ -61,6 +61,7 @@
             </audio>
             <p id="timer" style="border: 10px solid #0d3a67;background-color: #0d3a67;width: 130px;height: 18px;float: right;box-shadow: 1px 1px 5px gray;"></p>
             <span id="help"n>Help !!!</span>
+            <span id="launchMultiplayer" class="d-none">Lancer le multijoueur</span>
         </div>
 
         <form id="playlistHeaderForm">
@@ -88,7 +89,7 @@
             <input type="text" placeholder="Nom de votre salon ..." required />
             <select id="playlistsRoom">
                 {{#.}}
-                    <option value="{{code}}">{{playlistTitle}} ({{theme}}) - {{musicNumber}} musiques</option>
+                    <option value="{{code}}" data-title="{{playlistTitle}}">{{playlistTitle}} ({{theme}}) - {{musicNumber}} musiques</option>
                 {{/.}}
             </select>
             <input type="submit" value="Créer le salon" />
@@ -98,7 +99,7 @@
     <script type="text/html" id="roomsTemplates">
         {{#.}}
             <div class="room" data-room="{{id}}" data-playlist="{{playlist}}">
-                <span>{{name}}</span>
+                <span>{{title}}</span>
             </div>
         {{/.}}
     </script>

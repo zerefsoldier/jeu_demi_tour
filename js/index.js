@@ -82,9 +82,12 @@
             pointsNumber
         }));
 
+        if (!isMultiplayer()) launchTimerAndHelp();
+    }
+
+    function launchTimerAndHelp() {
         $("#help").bind("click", help);
         $("#playlistHeaderForm").on("submit", formSent);
-
         reduceTimer();
     }
 
@@ -223,6 +226,16 @@
 
     // Sockets events
 
+    async function roomsFound(rooms) {
+        const playlists = await getPlaylists();
+        $("#rooms")
+            .html(Mustache.to_html($("#roomCreateTemplate").html(), playlists))
+            .append(Mustache.to_html($("#roomsTemplates").html(), JSON.parse(rooms)));
+
+        $("#roomToCreate").bind("submit", createPersonnalRoom);
+        $(".room").bind("click", chooseRoom);
+    }
+
     function askUsername() {
         const username = prompt("Entrez votre nom de joueur ici");
         
@@ -233,9 +246,22 @@
     function createPersonnalRoom() {
         const roomName = $("#roomToCreate input[type='text']:eq(0)").val();
         const playlist = $("#playlistsRoom").find(":selected").val();
+        const playlistTitle = $("#playlistsRoom").find(":selected").attr("data-title");
         const username = askUsername();
 
-        sockets.createRoom(roomName, playlist, username);
+        sockets.createRoom(roomName, playlist, playlistTitle, username);
+        initPlaylistHeader();
+        document.getElementById("audioGuessSong").pause();
+
+        $("#launchMultiplayer").bind("click", () => {
+            setTimeout(() => {
+                document.getElementById("audioGuessSong").play();
+                launchTimerAndHelp();
+            }, 20);
+
+            sockets.gameStart(roomName);
+            $(this).remove();
+        });
     }
 
     async function chooseRoom(evt) {
@@ -243,20 +269,22 @@
 
         sockets.joinRoom(username, $(evt.currentTarget).attr("data-room"));
         themeSongs = await getPlaylistSongs($(evt.currentTarget).attr("data-playlist"));
+
+        initPlaylistHeader();
+        document.getElementById("audioGuessSong").pause();
     }
 
-    async function roomsFound(rooms) {
-        const playlists = await getPlaylists();
-        $("#rooms")
-            .html(Mustache.to_html($("#roomCreateTemplate").html(), playlists))
-            .append(Mustache.to_html($("#roomsTemplates").html(), rooms));
-
-        $("#roomToCreate").bind("submit", createPersonnalRoom);
-        $(".room").bind("click", chooseRoom);
+    function usersOfRoomGuessed(users) {
+        $("#roomUsers").append(Mustache.to_html($("#usersOnlineTemplate".html(), JSON.parse(users))));
     }
 
-    function joinedRoom(users) {
-        $("#roomUsers").html(Mustache.to_html($("#usersOnlineTemplate".html(), users)));
+    function joinedRoom(user) {
+        $("#roomUsers").append(Mustache.to_html($("#usersOnlineTemplate".html(), [user])));
+    }
+
+    function launchGame() {
+        document.getElementById("audioGuessSong").play();
+        launchTimerAndHelp();
     }
 
     function jokerUsed(pointsIncrement, first) {
