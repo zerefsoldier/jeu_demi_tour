@@ -4,13 +4,18 @@
         <title>Revserse blind test</title>
     </head>
     <body>
+        <div id="joker" class="d-none"></div>
         <div id="modes" class="d-none">
             <span class="mode selected" data-mode="1">Solo</span>
             <span class="mode" data-mode="2">Multijoueur</span>
         </div>
         <div id="informationPanel">
             <h6>Bienvenu dans ce blind test un peu spécial</h6>
-            <p>Vous allez devoir deviner quelles sont les musiques que vous allez écouter dans la playlist que vous avez décidé de tester. La subtilité est que cette fois-ci les extraits de musiques proposées sont joués à l'envers par rapport à la version originale. Saurez-vous retrouver les artistes de la musique originale ? A vous de jouer !</p>
+            <p>
+                Vous allez devoir deviner quelles sont les musiques que vous allez écouter dans la playlist que vous avez décidé de tester.<br />
+                La subtilité est que cette fois-ci les extraits de musiques proposées sont joués à l'envers par rapport à la version originale.<br />
+                Saurez-vous retrouver les artistes de la musique originale ? A vous de jouer !
+            </p>
             <div>
                 <button id="downloadPlaylists">J'ai compris, afficher les playlists</button>
             </div>
@@ -105,6 +110,11 @@
                 <span class="userPoints">{{points}}</span>
             </div>
         {{/.}}
+    </script>
+    
+    <script type="text/html" id="jokerTemplate">
+        <h6>Joker time !</h6>
+        <p>{{description}}</p>
     </script>
 
     <script src="/js/index.js"></script>

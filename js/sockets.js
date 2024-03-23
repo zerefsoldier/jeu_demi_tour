@@ -22,10 +22,13 @@ class Sockets {
         this.socket.emit("join_room", JSON.stringify({username, room}));
     }
 
+    useJoker(pointsIncrement, first) {
+        this.socket.emit("use_joker", JSON.stringify({pointsIncrement, first}));
+    }
+
     initEventsMessageReception() {
         this.socket.on("get_rooms", roomsFound);
         this.socket.on("join_room", joinedRoom);
+        this.socket.on("used_joker", jokerUsed);
     }
 }
-
-const sockets = new Sockets();

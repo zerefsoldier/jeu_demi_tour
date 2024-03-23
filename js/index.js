@@ -114,12 +114,12 @@
 
     async function launchNextOrEndGame() {
         const progressionPercentage = getPercentage(currentThemeSongGuess + 1, themeSongs.length).toFixed(0);
-        if (isMultiplayer() && progressionPercentage == 25 || progressionPercentage == 50 || progressionPercentage == 75) {
-        const request = await fetch("/php/controllers/getJoker.php");
-        joker = await request.json();
-        displayJoker();
+        if (isMultiplayer() && (progressionPercentage == 25 || progressionPercentage == 50 || progressionPercentage == 75)) {
+            const request = await fetch("/php/controllers/getJoker.php");
+            joker = await request.json();
+            displayJoker();
         } else {
-            joker = none;
+            joker = null;
             $("#joker").addClass("d-none");
         }
 
@@ -148,7 +148,7 @@
 
                 if (isMultiplayer()) {
                     sockets.playerAnswerGood(playerName, pointsNumber);
-                    if (joker && joker.type == "4") sockets.useJoker(JSON.stringify({pointsIncrement, first: joker.first}));
+                    if (joker?.type == "4") sockets.useJoker(pointsIncrement, joker.first);
                 }
                 launchNextOrEndGame();
             }
@@ -158,7 +158,7 @@
                 launchNextOrEndGame();
             }
         }).catch(() => {
-            // En cas de défaite, possibilité de faire un truc
+            // En cas de mauvaise transmission, possibilité de faire un truc
         });
     }
 
@@ -223,16 +223,6 @@
 
     // Sockets events
 
-    async function roomsFound(rooms) {
-        const playlists = await getPlaylists();
-        $("#rooms")
-            .html(Mustache.to_html($("#roomCreateTemplate").html(), playlists))
-            .append(Mustache.to_html($("#roomsTemplates").html(), rooms));
-
-        $("#roomToCreate").bind("submit", createPersonnalRoom);
-        $(".room").bind("click", chooseRoom);
-    }
-
     function askUsername() {
         const username = prompt("Entrez votre nom de joueur ici");
         
@@ -255,7 +245,25 @@
         themeSongs = await getPlaylistSongs($(evt.currentTarget).attr("data-playlist"));
     }
 
-    function joinedRoom(users) {
-    $("#roomUsers").html(Mustache.to_html($("#usersOnlineTemplate".html(), users)));
+    async function roomsFound(rooms) {
+        const playlists = await getPlaylists();
+        $("#rooms")
+            .html(Mustache.to_html($("#roomCreateTemplate").html(), playlists))
+            .append(Mustache.to_html($("#roomsTemplates").html(), rooms));
+
+        $("#roomToCreate").bind("submit", createPersonnalRoom);
+        $(".room").bind("click", chooseRoom);
     }
+
+    function joinedRoom(users) {
+        $("#roomUsers").html(Mustache.to_html($("#usersOnlineTemplate".html(), users)));
+    }
+
+    function jokerUsed(pointsIncrement, first) {
+        pointsNumber -= pointsIncrement;
+
+        if (first) joker = null;
+    }
+
+    const sockets = Object.freeze(new Sockets());
 })();
